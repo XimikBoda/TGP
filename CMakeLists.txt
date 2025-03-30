@@ -9,6 +9,9 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-project ("TGP")
+project("TGP")
 
-add_subdirectory (Lab2)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+add_subdirectory(gpu_info)
+add_subdirectory(Lab2)
