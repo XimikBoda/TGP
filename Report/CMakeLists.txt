@@ -14,6 +14,6 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 
 target_link_libraries(${PROJECT_NAME} sfml-graphics)
-target_link_libraries(${PROJECT_NAME} imgui)
+target_link_libraries(${PROJECT_NAME} imgui implot)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "../include")
