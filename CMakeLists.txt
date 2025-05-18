@@ -13,5 +13,11 @@ project("TGP")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+
+option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+
+add_subdirectory(imgui)
+add_subdirectory(SFML)
 add_subdirectory(gpu_info)
 add_subdirectory(Lab2)
+add_subdirectory(Report)
