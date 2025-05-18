@@ -4,7 +4,8 @@ set(PROJECT_NAME "Report")
 
 enable_language(CUDA)
 add_executable (${PROJECT_NAME} 
-  main.cu
+  main.cpp
+  T1D.cu T1D.cuh
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER ${PROJECT_NAME})
