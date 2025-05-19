@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 
 		ex.update();
 
-		//ImPlot::ShowDemoWindow();
+		ImPlot::ShowDemoWindow();
 
 		ImGui::SFML::Render(window);
 		window.display();

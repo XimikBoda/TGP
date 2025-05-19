@@ -8,10 +8,10 @@
 #include <implot.h>
 
 
-__global__ void TexReadout1D(cudaTextureObject_t texObj, float* out, float offset, size_t N)
+__global__ void TexReadout1D(cudaTextureObject_t texObj, float* out, float multiple, float offset, size_t out_N)
 {
-	for (size_t i = blockIdx.x * blockDim.x + threadIdx.x; i < N; i += gridDim.x * blockDim.x)
-		out[i] = tex1D<float>(texObj, (float)i/(float)N + offset);
+	for (size_t i = blockIdx.x * blockDim.x + threadIdx.x; i < out_N; i += gridDim.x * blockDim.x)
+		out[i] = tex1D<float>(texObj, multiple*(float)i/(float)out_N + offset);
 }
 
 void ReadFetching1D(vector<float> &in, vector<float> &out, cudaTextureFilterMode filterMode, bool tablelookup = false, int threadsPerBlock = 256, int numberOfBlocks = 32) {
@@ -38,8 +38,9 @@ void ReadFetching1D(vector<float> &in, vector<float> &out, cudaTextureFilterMode
 	cudaCreateTextureObject(&texObj, &resDesc, &texDesc, NULL); // створюємо об'єкт текстури
 
 	float offset = tablelookup ? 1.f / (in.size()) / 2.f : 0.f; // для реалізації Table Lookup
+	float multiple = (float)(in.size() - 1) / in.size();
 
-	TexReadout1D<<<numberOfBlocks, threadsPerBlock>>>(texObj, d_out, offset, out.size()); //запуск ядра
+	TexReadout1D<<<numberOfBlocks, threadsPerBlock>>>(texObj, d_out, multiple, offset, out.size()); //запуск ядра
 
 	cudaError_t err = cudaGetLastError();
 	if (err != cudaSuccess) printf("Error: %s\n", cudaGetErrorString(err));
@@ -54,12 +55,22 @@ void ReadFetching1D(vector<float> &in, vector<float> &out, cudaTextureFilterMode
 	cudaFreeArray(cuArray);
 }
 
+void T1D::update_in_size() {
+	in_x_0.resize(in_N);
+	in_x_1.resize(in_N);
+	in_y.resize(in_N);
+	for (int i = 0; i < in_x_0.size(); ++i)
+		in_y[i] = rand() % (in_max+1), 
+		in_x_0[i] = ((float)i / (in_x_0.size())),
+		in_x_1[i] = ((float)i / (in_x_0.size() - 1));
+}
+
 void T1D::update_out_size() {
-	out_x.resize(N);
-	out_y_0.resize(N);
-	out_y_1.resize(N);
-	out_y_2.resize(N);
-	out_y_3.resize(N);
+	out_x.resize(out_N);
+	out_y_0.resize(out_N);
+	out_y_1.resize(out_N);
+	out_y_2.resize(out_N);
+	out_y_3.resize(out_N);
 
 	for (int i = 0; i < out_x.size(); ++i)
 		out_x[i] = ((float)i / (float)(out_x.size()));
@@ -70,11 +81,7 @@ T1D::T1D() {
 	cudaDeviceGetAttribute(&numberOfSMs, cudaDevAttrMultiProcessorCount, deviceId);
 
 
-	in_x.resize(10);
-	in_y.resize(10);
-	for (int i = 0; i < in_x.size(); ++i)
-		in_y[i] = rand() % 5, in_x[i] = ((float)i/(in_x.size()));
-
+	update_in_size();
 	update_out_size();
 
 	threadsPerBlock = 256;
@@ -85,9 +92,9 @@ void T1D::update() {
 	if (cl.getElapsedTime().asSeconds() > update_time) {
 		cl.restart();
 
-		for (int i = 0; i < in_x.size() - 1; ++i)
+		for (int i = 0; i < in_x_0.size() - 1; ++i)
 			in_y[i] = in_y[i + 1];
-		in_y[in_x.size() - 1] = rand() % 5;
+		in_y[in_x_0.size() - 1] = rand() % (in_max + 1);
 	}
 
 	ReadFetching1D(in_y, out_y_0, cudaFilterModePoint, false, threadsPerBlock, numberOfBlocks);
@@ -95,24 +102,61 @@ void T1D::update() {
 	ReadFetching1D(in_y, out_y_2, cudaFilterModeLinear, false, threadsPerBlock, numberOfBlocks);
 	ReadFetching1D(in_y, out_y_3, cudaFilterModeLinear, true, threadsPerBlock, numberOfBlocks);
 
-	if (ImGui::Begin("Example")) {
+	if (ImGui::Begin("1D")) {
 
-		if (ImPlot::BeginPlot("My Plot")) {
+		if (ImPlot::BeginPlot("Just")) {
+			ImPlot::SetupAxes("X-Axis 1", "Y-Axis 1");
+			ImPlot::SetupAxesLimits(0, 1, 0, in_max, ImPlotCond_Always);
+
+			ImPlot::SetupAxis(ImAxis_X2, "X-Axis 2", ImPlotAxisFlags_AuxDefault);
+			ImPlot::SetupAxisLimits(ImAxis_X2, 0, in_x_0.size(), ImPlotCond_Always);
+
+			ImPlot::SetAxes(ImAxis_X2, ImAxis_Y1);
+			ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
+			ImPlot::PlotBars("In2", in_y.data(), in_x_0.size(), 0.9, 0.5);
+			ImPlot::PopStyleVar();
+
+			ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);
+
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotLine("In", in_x.data(), in_y.data(), in_x.size());
+			ImPlot::PlotLine("In", in_x_0.data(), in_y.data(), in_x_0.size());
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
 			ImPlot::PlotLine("Out p", out_x.data(), out_y_0.data(), out_x.size());
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotLine("Out pt", out_x.data(), out_y_1.data(), out_x.size());
-			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
 			ImPlot::PlotLine("Out l", out_x.data(), out_y_2.data(), out_x.size());
+			ImPlot::EndPlot();
+		}
+
+		if (ImPlot::BeginPlot("Just")) {
+			ImPlot::SetupAxes("X-Axis 1", "Y-Axis 1");
+			ImPlot::SetupAxesLimits(0, 1, 0, in_max, ImPlotCond_Always);
+
+			ImPlot::SetupAxis(ImAxis_X2, "X-Axis 2", ImPlotAxisFlags_AuxDefault);
+			ImPlot::SetupAxisLimits(ImAxis_X2, 0, in_x_1.size() - 1, ImPlotCond_Always);
+
+			ImPlot::SetAxes(ImAxis_X2, ImAxis_Y1);
+			ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
+			ImPlot::PlotBars("In2_", in_y.data(), in_x_1.size(), 0.9);
+			ImPlot::PopStyleVar();
+
+			ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);
+
+			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+			ImPlot::PlotLine("In_", in_x_1.data(), in_y.data(), in_x_1.size());
+			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+			ImPlot::PlotLine("Out pt", out_x.data(), out_y_1.data(), out_x.size());
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
 			ImPlot::PlotLine("Out lt", out_x.data(), out_y_3.data(), out_x.size());
 			ImPlot::EndPlot();
 		}
 
-		if (ImGui::SliderInt("N", &N, 0, 1000))
+		if (ImGui::SliderInt("In N", &in_N, 1, 1000))
+			update_in_size();
+		if (ImGui::SliderInt("Out N", &out_N, 1, 1000))
 			update_out_size();
+
+		ImGui::SliderInt("In max", &in_max, 0, 1000);
+
 		ImGui::SliderFloat("Update time (in s) (0-1)", &update_time, 0, 1);
 		ImGui::SliderFloat("Update time (in s) (1-60)", &update_time, 1, 60);
 

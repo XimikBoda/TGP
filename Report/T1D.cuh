@@ -8,11 +8,14 @@ class T1D {
 	sf::Clock cl;
 	float update_time = 0.5;
 
-	int N = 100;
+	int in_N = 10;
+	int out_N = 100;
 
-	vector<float> in_x;
+	int in_max = 5;
+
+	vector<float> in_x_0;
+	vector<float> in_x_1;
 	vector<float> in_y;
-
 
 	vector<float> out_x;
 	vector<float> out_y_0;
@@ -26,6 +29,7 @@ class T1D {
 	size_t threadsPerBlock;
 	size_t numberOfBlocks;
 
+	void update_in_size();
 	void update_out_size();
 public:
 
