@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <cuda_runtime_api.h>
 #include <SFML/System/Clock.hpp>
 using namespace std;
 
@@ -23,16 +22,10 @@ class T1D {
 	vector<float> out_y_2;
 	vector<float> out_y_3;
 
-
-	int deviceId;
-	int numberOfSMs;
-	size_t threadsPerBlock;
-	size_t numberOfBlocks;
-
 	void update_in_size();
 	void update_out_size();
-public:
 
+public:
 	T1D();
 
 	void update();

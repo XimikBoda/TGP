@@ -14,7 +14,7 @@ __global__ void TexReadout1D(cudaTextureObject_t texObj, float* out, float multi
 		out[i] = tex1D<float>(texObj, multiple*(float)i/(float)out_N + offset);
 }
 
-void ReadFetching1D(vector<float> &in, vector<float> &out, cudaTextureFilterMode filterMode, bool tablelookup = false, int threadsPerBlock = 256, int numberOfBlocks = 32) {
+void ReadFetching1D(vector<float> &in, vector<float> &out, cudaTextureFilterMode filterMode, bool tablelookup = false, int threadsPerBlock = 256) {
 	cudaChannelFormatDesc channelDesc =
 		cudaCreateChannelDesc(sizeof(float) * 8, 0, 0, 0, cudaChannelFormatKindFloat);
 
@@ -39,6 +39,8 @@ void ReadFetching1D(vector<float> &in, vector<float> &out, cudaTextureFilterMode
 
 	float offset = tablelookup ? 1.f / (in.size()) / 2.f : 0.f; // для реалізації Table Lookup
 	float multiple = tablelookup ? (float)(in.size() - 1) / in.size() : 1.f;
+
+	size_t numberOfBlocks = (out.size() + threadsPerBlock - 1) / threadsPerBlock;
 
 	TexReadout1D<<<numberOfBlocks, threadsPerBlock>>>(texObj, d_out, multiple, offset, out.size()); //запуск ядра
 
@@ -77,15 +79,8 @@ void T1D::update_out_size() {
 }
 
 T1D::T1D() {
-	cudaGetDevice(&deviceId);
-	cudaDeviceGetAttribute(&numberOfSMs, cudaDevAttrMultiProcessorCount, deviceId);
-
-
 	update_in_size();
 	update_out_size();
-
-	threadsPerBlock = 256;
-	numberOfBlocks = 32 * numberOfSMs;
 }
 
 void T1D::update() {
@@ -97,10 +92,11 @@ void T1D::update() {
 		in_y[in_x_0.size() - 1] = rand() % (in_max + 1);
 	}
 
-	ReadFetching1D(in_y, out_y_0, cudaFilterModePoint, false, threadsPerBlock, numberOfBlocks);
-	ReadFetching1D(in_y, out_y_1, cudaFilterModePoint, true, threadsPerBlock, numberOfBlocks);
-	ReadFetching1D(in_y, out_y_2, cudaFilterModeLinear, false, threadsPerBlock, numberOfBlocks);
-	ReadFetching1D(in_y, out_y_3, cudaFilterModeLinear, true, threadsPerBlock, numberOfBlocks);
+	size_t threadsPerBlock = 256;
+	ReadFetching1D(in_y, out_y_0, cudaFilterModePoint, false, threadsPerBlock);
+	ReadFetching1D(in_y, out_y_1, cudaFilterModePoint, true, threadsPerBlock);
+	ReadFetching1D(in_y, out_y_2, cudaFilterModeLinear, false, threadsPerBlock);
+	ReadFetching1D(in_y, out_y_3, cudaFilterModeLinear, true, threadsPerBlock);
 
 	if (ImGui::Begin("1D")) {
 
