@@ -38,7 +38,7 @@ void ReadFetching1D(vector<float> &in, vector<float> &out, cudaTextureFilterMode
 	cudaCreateTextureObject(&texObj, &resDesc, &texDesc, NULL); // створюємо об'єкт текстури
 
 	float offset = tablelookup ? 1.f / (in.size()) / 2.f : 0.f; // для реалізації Table Lookup
-	float multiple = (float)(in.size() - 1) / in.size();
+	float multiple = tablelookup ? (float)(in.size() - 1) / in.size() : 1.f;
 
 	TexReadout1D<<<numberOfBlocks, threadsPerBlock>>>(texObj, d_out, multiple, offset, out.size()); //запуск ядра
 
@@ -113,21 +113,20 @@ void T1D::update() {
 
 			ImPlot::SetAxes(ImAxis_X2, ImAxis_Y1);
 			ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
-			ImPlot::PlotBars("In2", in_y.data(), in_x_0.size(), 0.9, 0.5);
+			ImPlot::PlotBars("In bars", in_y.data(), in_x_0.size(), 0.9, 0.5);
 			ImPlot::PopStyleVar();
 
 			ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);
-
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotLine("In", in_x_0.data(), in_y.data(), in_x_0.size());
+			ImPlot::PlotLine("In line", in_x_0.data(), in_y.data(), in_x_0.size());
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotLine("Out p", out_x.data(), out_y_0.data(), out_x.size());
+			ImPlot::PlotLine("Out point", out_x.data(), out_y_0.data(), out_x.size());
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotLine("Out l", out_x.data(), out_y_2.data(), out_x.size());
+			ImPlot::PlotLine("Out line", out_x.data(), out_y_2.data(), out_x.size());
 			ImPlot::EndPlot();
 		}
 
-		if (ImPlot::BeginPlot("Just")) {
+		if (ImPlot::BeginPlot("Table Lookup")) {
 			ImPlot::SetupAxes("X-Axis 1", "Y-Axis 1");
 			ImPlot::SetupAxesLimits(0, 1, 0, in_max, ImPlotCond_Always);
 
@@ -136,17 +135,17 @@ void T1D::update() {
 
 			ImPlot::SetAxes(ImAxis_X2, ImAxis_Y1);
 			ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
-			ImPlot::PlotBars("In2_", in_y.data(), in_x_1.size(), 0.9);
+			ImPlot::PlotBars("In bars", in_y.data(), in_x_1.size(), 0.9);
 			ImPlot::PopStyleVar();
 
 			ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);
 
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotLine("In_", in_x_1.data(), in_y.data(), in_x_1.size());
+			ImPlot::PlotLine("In line", in_x_1.data(), in_y.data(), in_x_1.size());
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotLine("Out pt", out_x.data(), out_y_1.data(), out_x.size());
+			ImPlot::PlotLine("Out point", out_x.data(), out_y_1.data(), out_x.size());
 			ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-			ImPlot::PlotLine("Out lt", out_x.data(), out_y_3.data(), out_x.size());
+			ImPlot::PlotLine("Out line", out_x.data(), out_y_3.data(), out_x.size());
 			ImPlot::EndPlot();
 		}
 
