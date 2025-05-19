@@ -13,11 +13,13 @@
 #include <implot.h>
 
 #include "T1D.cuh"
+#include "T2D.cuh"
 
 using namespace std;
 
 int main(int argc, char* argv[]) {
-	T1D ex;
+	T1D t1d;
+	T2D t2d;
 
 	sf::RenderWindow window(sf::VideoMode(1600, 900), "Test Place");
 	window.setFramerateLimit(60);
@@ -43,7 +45,8 @@ int main(int argc, char* argv[]) {
 
 		ImGui::SFML::Update(window, deltaClock.restart());
 
-		ex.update();
+		t1d.update();
+		t2d.update();
 
 		ImPlot::ShowDemoWindow();
 
