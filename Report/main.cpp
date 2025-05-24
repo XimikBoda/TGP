@@ -13,7 +13,7 @@
 #include <implot.h>
 
 #include "T1D.cuh"
-#include "T2D.cuh"
+#include "T2D.h"
 
 using namespace std;
 

@@ -6,7 +6,10 @@ enable_language(CUDA)
 add_executable (${PROJECT_NAME} 
   main.cpp
   T1D.cu T1D.cuh
-  T2D.cu T2D.cuh
+  T2D.cpp T2D.h
+  Cuda2DTexture.cpp Cuda2DTexture.h
+  Pc2DTexture.cpp Pc2DTexture.h
+  TexReadout2D.cu TexReadout2D.cuh
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER ${PROJECT_NAME})
