@@ -14,12 +14,14 @@
 
 #include "T1D.cuh"
 #include "T2D.h"
+#include "T2DImage.h"
 
 using namespace std;
 
 int main(int argc, char* argv[]) {
 	T1D t1d;
 	T2D t2d;
+	T2DImage t2d_im;
 
 	sf::RenderWindow window(sf::VideoMode(1600, 900), "Test Place");
 	window.setFramerateLimit(60);
@@ -47,6 +49,7 @@ int main(int argc, char* argv[]) {
 
 		t1d.update();
 		t2d.update();
+		t2d_im.update();
 
 		ImPlot::ShowDemoWindow();
 

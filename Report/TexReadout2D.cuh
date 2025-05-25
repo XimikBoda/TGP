@@ -4,4 +4,4 @@
 
 using namespace std;
 
-void ReadFetching2D(Cuda2DTexture& in, std::vector<uchar4>& out, int W, int H, bool tablelookup = false);
+void ReadFetching2D(Cuda2DTexture& in, Pc2DTexture& out);

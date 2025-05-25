@@ -17,10 +17,15 @@ class T1D {
 	vector<float> in_y;
 
 	vector<float> out_x;
+	vector<float> out_x_tb;
 	vector<float> out_y_0;
 	vector<float> out_y_1;
 	vector<float> out_y_2;
 	vector<float> out_y_3;
+
+	int addressMode = 0;
+	const char* addressMode_names[4] = { "Wrap", "Clamp", "Mirror", "Border" };
+
 
 	void update_in_size();
 	void update_out_size();

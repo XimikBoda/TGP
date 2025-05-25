@@ -8,15 +8,10 @@
 
 using namespace std;
 
-class T2D {
-	sf::Clock cl;
-	float update_time = 1000;
-
+class T2DImage {
 	sf::Image in;
 	sf::Texture in_tex;
 	Cuda2DTexture d_in;
-
-	int inN = 2;
 
 	int N = 100;
 	Pc2DTexture out_tex_p;
@@ -25,13 +20,10 @@ class T2D {
 	Pc2DTexture out_tex_lt;
 
 	int addressMode = 0;
-
-	void randomize();
-
+	
 	void updateN();
-
 public:
-	T2D();
+	T2DImage();
 
 	void update();
 

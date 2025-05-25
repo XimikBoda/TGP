@@ -4,6 +4,8 @@
 #include <cuda_runtime_api.h>
 using namespace std;
 
+extern const char* addressMode_names[4];
+
 class Cuda2DTexture : sf::NonCopyable {
 	cudaChannelFormatDesc channelDesc = 
 		cudaCreateChannelDesc(8, 8, 8, 8, cudaChannelFormatKindUnsignedNormalized8X4);
@@ -11,12 +13,14 @@ class Cuda2DTexture : sf::NonCopyable {
 	cudaResourceDesc resDesc = {};
 	cudaTextureDesc texDesc = {};
 	cudaTextureFilterMode filterMode = cudaFilterModePoint;
+	cudaTextureAddressMode addressMode = cudaAddressModeWrap;
 
 	void release();
 	void init(int w, int h);
 
 public:
 	int w = -1, h = -1;
+	bool tablelookup = false;
 
 	cudaTextureObject_t texObj = 0;
 
@@ -27,5 +31,6 @@ public:
 	~Cuda2DTexture();
 
 	void update(sf::Image &im);
-	void changeFM(cudaTextureFilterMode filterMode);
+	void changeFM(cudaTextureFilterMode filterMode, bool tablelookup = false);
+	void changeAM(cudaTextureAddressMode addressMode);
 };

@@ -7,6 +7,7 @@ add_executable (${PROJECT_NAME}
   main.cpp
   T1D.cu T1D.cuh
   T2D.cpp T2D.h
+  T2DImage.cpp T2DImage.h
   Cuda2DTexture.cpp Cuda2DTexture.h
   Pc2DTexture.cpp Pc2DTexture.h
   TexReadout2D.cu TexReadout2D.cuh
