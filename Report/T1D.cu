@@ -150,7 +150,7 @@ void T1D::update() {
 			ImPlot::EndPlot();
 		}
 
-		ImGui::Combo("Wave form", &addressMode, addressMode_names, 4);
+		ImGui::Combo("Addressing mode", &addressMode, addressMode_names, 4);
 
 		if (ImGui::SliderInt("In N", &in_N, 1, 1000))
 			update_in_size();

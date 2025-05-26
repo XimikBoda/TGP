@@ -47,8 +47,11 @@ void ReadFetching2D(Cuda2DTexture &in, Pc2DTexture &out) {
 			(float)(in.h - 1) / in.h / (outSize.y - 1) };
 	}
 
-	multiple2.x *= 1;
-	multiple2.y *= 1;
+	//multiple2.x *= 3;
+	//multiple2.y *= 3;
+
+	//offset2.x -= 1;
+	//offset2.y -= 1;
 
 	TexReadout2D<<<numberOfBlocks, threadsPerBlock>>>(in.texObj, out.getDevicePtr(), outSize, multiple2, offset2); //запуск ядра
 

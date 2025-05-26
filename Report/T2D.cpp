@@ -50,12 +50,12 @@ void T2D::update() {
 			randomize();
 		}
 
-		if (ImGui::SliderInt("Out N", &N, 1, 1000))
+		if (ImGui::SliderInt("Out N", &N, 1, 100))
 			updateN();
 
 		ImGui::SliderFloat("Update time (in s) (0-1)", &update_time, 0, 1);
 		ImGui::SliderFloat("Update time (in s) (1-60)", &update_time, 1, 60);
-		if (ImGui::Combo("Wave form", &addressMode, addressMode_names, 4))
+		if (ImGui::Combo("Addressing mode", &addressMode, addressMode_names, 4))
 			d_in.changeAM((cudaTextureAddressMode)addressMode);
 
 		d_in.changeFM(cudaFilterModePoint, false);

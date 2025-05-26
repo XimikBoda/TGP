@@ -27,7 +27,7 @@ void T2DImage::update() {
 		if (ImGui::SliderInt("N", &N, 1, 1000))
 			updateN();
 
-		if (ImGui::Combo("Wave form", &addressMode, addressMode_names, 4))
+		if (ImGui::Combo("Addressing mode", &addressMode, addressMode_names, 4))
 			d_in.changeAM((cudaTextureAddressMode)addressMode);
 
 		d_in.changeFM(cudaFilterModePoint, false);
